@@ -76,6 +76,11 @@
   header.topbar .meta{color:var(--muted); font-size:0.8rem; margin-top:2px;}
   header.topbar .actions{display:flex; align-items:center; gap:0.8rem;}
   header.topbar button.logout{background:none; border:1px solid var(--line); color:var(--muted); padding:0.4rem 0.8rem; border-radius:3px; cursor:pointer; font-size:0.8rem;}
+  #sync-toast{
+    position:fixed; bottom:1.2rem; right:1.2rem; background:var(--ink-800); border:1px solid var(--amber);
+    color:var(--paper); padding:0.7rem 1rem; border-radius:4px; font-size:0.85rem; max-width:320px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.4); z-index:20; display:none;
+  }
 
   /* ---------- sidebar ---------- */
   aside{
@@ -186,6 +191,7 @@
       <div class="meta" id="user-email"></div>
     </div>
     <div class="actions">
+      <button class="logout" id="sync-github-btn" style="border-color:var(--amber); color:var(--amber);">Sincronizar com GitHub</button>
       <button class="logout" id="logout-btn">Sair</button>
     </div>
   </header>
@@ -209,6 +215,7 @@
     <!-- populated by JS -->
   </main>
 </div>
+<div id="sync-toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -218,7 +225,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
   getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, serverTimestamp, getDocs
+  onSnapshot, query, serverTimestamp, getDocs, setDoc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 // ====== CONFIGURE AQUI COM AS CHAVES DO SEU PROJETO FIREBASE ======
@@ -309,6 +316,79 @@ function traduzErro(code) {
 }
 
 document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
+
+function showToast(msg, ms = 5000) {
+  const t = document.getElementById("sync-toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => { t.style.display = "none"; }, ms);
+}
+
+async function getGithubUsername() {
+  const settingsRef = doc(db, "usuarios", currentUser.uid);
+  const snap = await getDoc(settingsRef);
+  let username = snap.exists() ? snap.data().githubUsername : null;
+  if (!username) {
+    username = prompt("Qual é o seu usuário no GitHub? (ex: williamharms10)");
+    if (!username) return null;
+    username = username.trim().replace(/^@/, "");
+    await setDoc(settingsRef, { githubUsername: username }, { merge: true });
+  }
+  return username;
+}
+
+document.getElementById("sync-github-btn").addEventListener("click", async () => {
+  const btn = document.getElementById("sync-github-btn");
+  const username = await getGithubUsername();
+  if (!username) return;
+
+  btn.disabled = true;
+  btn.textContent = "Sincronizando...";
+  try {
+    const res = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated`);
+    if (!res.ok) throw new Error("Não foi possível acessar o GitHub para esse usuário.");
+    const repos = (await res.json()).filter(r => !r.fork);
+
+    let criados = 0, atualizados = 0;
+    for (const repo of repos) {
+      const byLink = projectsCache.find(p => p.linkRepo === repo.html_url);
+      const byName = projectsCache.find(p => (p.nome || "").toLowerCase() === repo.name.toLowerCase() && !p.linkRepo);
+
+      if (byLink) {
+        continue; // já sincronizado antes, não sobrescreve edições manuais
+      } else if (byName) {
+        await updateDoc(doc(db, "usuarios", currentUser.uid, "projetos", byName.id), {
+          linkRepo: repo.html_url,
+          stack: byName.stack || repo.language || "",
+          atualizadoEm: serverTimestamp()
+        });
+        atualizados++;
+      } else {
+        await addDoc(projectsCol(), {
+          nome: repo.name,
+          cliente: "",
+          contato: "",
+          stack: repo.language || "",
+          linkRepo: repo.html_url,
+          linkApp: "",
+          notas: repo.description || "",
+          proximosPassos: "",
+          status: "ideia",
+          criadoEm: serverTimestamp(),
+          atualizadoEm: serverTimestamp()
+        });
+        criados++;
+      }
+    }
+    showToast(`Sincronizado: ${criados} projeto(s) novo(s), ${atualizados} atualizado(s) com o link do repositório.`);
+  } catch (e) {
+    showToast("Erro ao sincronizar: " + e.message, 7000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Sincronizar com GitHub";
+  }
+});
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
