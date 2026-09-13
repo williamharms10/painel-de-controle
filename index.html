@@ -366,6 +366,15 @@
   @media(max-width:1100px){
     .top-row,main > .field-row{width:100%}
   }
+  /* Prévia: mais larga, com uma proporção agradável de tela. */
+  .detail-preview{width:min(520px,42%);padding:1.1rem}
+  .preview-label{display:flex;align-items:center;gap:.55rem;margin-bottom:.75rem;color:#51515a;font-size:.7rem}
+  .preview-label:before{content:"";width:8px;height:8px;border-radius:50%;background:#007aff;box-shadow:0 0 0 4px rgba(0,122,255,.12)}
+  .preview-frame{background:#e9edf2;box-shadow:0 8px 18px rgba(28,28,30,.08)}
+  .preview-frame iframe{height:410px;background:#fff}
+  .preview-empty{min-height:260px;display:grid;place-items:center}
+  @media(max-width:1100px){.detail-preview{width:100%}.preview-frame iframe{height:440px}}
+  @media(max-width:560px){.preview-frame iframe{height:360px}}
 </style>
 </head>
 <body>
@@ -848,7 +857,7 @@ function renderMain() {
       </div>
 
       <div class="detail-preview">
-        <div class="preview-label">Prévia do app</div>
+        <div class="preview-label">Prévia das telas do projeto</div>
         ${proj.linkApp ? `
           <div class="preview-frame">
             <div class="preview-bar">
