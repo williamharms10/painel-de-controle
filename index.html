@@ -367,14 +367,29 @@
     .top-row,main > .field-row{width:100%}
   }
   /* Prévia: mais larga, com uma proporção agradável de tela. */
-  .detail-preview{width:min(500px,40%);padding:1.1rem;align-self:flex-start}
+  /* A prévia passa a ser uma seção de demonstração, e não uma coluna estreita. */
+  .detail-layout{display:block}
+  .detail-form{width:100%}
+  .detail-preview{
+    width:100%;
+    max-width:980px;
+    margin:1.25rem auto 0;
+    padding:1.15rem;
+    position:static;
+  }
   .preview-label{display:flex;align-items:center;gap:.55rem;margin-bottom:.75rem;color:#51515a;font-size:.7rem}
   .preview-label:before{content:"";width:8px;height:8px;border-radius:50%;background:#007aff;box-shadow:0 0 0 4px rgba(0,122,255,.12)}
   .preview-frame{background:#e9edf2;box-shadow:0 8px 18px rgba(28,28,30,.08);overflow:hidden}
-  .preview-frame iframe{width:142.857%;height:390px;margin-bottom:-117px;background:#fff;transform:scale(.7);transform-origin:top left}
+  .preview-frame iframe{
+    width:100%;
+    height:460px;
+    margin:0;
+    background:#fff;
+    transform:none;
+  }
   .preview-empty{min-height:260px;display:grid;place-items:center}
-  @media(max-width:1100px){.detail-preview{width:100%}.preview-frame iframe{height:480px;margin-bottom:-144px}}
-  @media(max-width:560px){.preview-frame iframe{height:430px;margin-bottom:-129px}}
+  @media(max-width:1100px){.detail-preview{width:100%}.preview-frame iframe{height:420px}}
+  @media(max-width:560px){.detail-preview{margin-top:.9rem}.preview-frame iframe{height:340px}}
 </style>
 </head>
 <body>
@@ -1031,7 +1046,12 @@ document.getElementById("assistant-input").addEventListener("input", (e) => {
     const name=document.getElementById("f-nome");
     const client=document.getElementById("f-cliente");
     const status=document.getElementById("f-status");
-    if(!main||!name||!status||main.querySelector(".project-hero")) return;
+    if(!main) return;
+    const form=main.querySelector(".detail-form");
+    const preview=main.querySelector(".detail-preview");
+    const links=form&&form.querySelector(".links-row");
+    if(form&&preview&&links&&preview.parentElement!==form) links.after(preview);
+    if(!name||!status||main.querySelector(".project-hero")) return;
     const row=main.querySelector(".top-row"); if(!row) return;
     const hero=document.createElement("section"); hero.className="project-hero";
     const eyebrow=document.createElement("div"); eyebrow.className="eyebrow"; eyebrow.textContent="Projeto selecionado";
