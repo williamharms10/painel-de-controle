@@ -367,14 +367,14 @@
     .top-row,main > .field-row{width:100%}
   }
   /* Prévia: mais larga, com uma proporção agradável de tela. */
-  .detail-preview{width:min(520px,42%);padding:1.1rem}
+  .detail-preview{width:min(500px,40%);padding:1.1rem;align-self:flex-start}
   .preview-label{display:flex;align-items:center;gap:.55rem;margin-bottom:.75rem;color:#51515a;font-size:.7rem}
   .preview-label:before{content:"";width:8px;height:8px;border-radius:50%;background:#007aff;box-shadow:0 0 0 4px rgba(0,122,255,.12)}
-  .preview-frame{background:#e9edf2;box-shadow:0 8px 18px rgba(28,28,30,.08)}
-  .preview-frame iframe{height:410px;background:#fff}
+  .preview-frame{background:#e9edf2;box-shadow:0 8px 18px rgba(28,28,30,.08);overflow:hidden}
+  .preview-frame iframe{width:142.857%;height:390px;margin-bottom:-117px;background:#fff;transform:scale(.7);transform-origin:top left}
   .preview-empty{min-height:260px;display:grid;place-items:center}
-  @media(max-width:1100px){.detail-preview{width:100%}.preview-frame iframe{height:440px}}
-  @media(max-width:560px){.preview-frame iframe{height:360px}}
+  @media(max-width:1100px){.detail-preview{width:100%}.preview-frame iframe{height:480px;margin-bottom:-144px}}
+  @media(max-width:560px){.preview-frame iframe{height:430px;margin-bottom:-129px}}
 </style>
 </head>
 <body>
@@ -857,7 +857,7 @@ function renderMain() {
       </div>
 
       <div class="detail-preview">
-        <div class="preview-label">Prévia das telas do projeto</div>
+        <div class="preview-label">Prévia do projeto</div>
         ${proj.linkApp ? `
           <div class="preview-frame">
             <div class="preview-bar">
