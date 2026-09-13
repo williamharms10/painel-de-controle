@@ -9,6 +9,30 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
 <meta name="theme-color" content="#0E141B" />
+<script>
+(function(){
+  var VKEY = "painelVersionSeen";
+  function checkVersion(){
+    fetch("/version.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var seen = localStorage.getItem(VKEY);
+        if (seen && data.version && seen !== data.version) {
+          localStorage.setItem(VKEY, data.version);
+          window.location.reload();
+        } else if (data.version) {
+          localStorage.setItem(VKEY, data.version);
+        }
+      })
+      .catch(function(){});
+  }
+  checkVersion();
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden) checkVersion();
+  });
+  setInterval(checkVersion, 3 * 60 * 1000);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
