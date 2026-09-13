@@ -497,7 +497,7 @@ document.getElementById("sync-github-btn").addEventListener("click", async () =>
   try {
     const res = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated`);
     if (!res.ok) throw new Error("Não foi possível acessar o GitHub para esse usuário.");
-    const repos = (await res.json()).filter(r => !r.fork);
+    const repos = (await res.json()).filter(r => !r.fork && r.name.toLowerCase() !== "painel-de-controle");
 
     let criados = 0, atualizados = 0;
     for (const repo of repos) {
