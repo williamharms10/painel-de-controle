@@ -395,6 +395,13 @@
   main > .field-row{width:100%}
   @media(max-width:1100px){.detail-preview{width:100%}.preview-frame iframe{height:420px}}
   @media(max-width:560px){.detail-preview{margin-top:.9rem}.preview-frame iframe{height:340px}}
+  /* Ações do projeto: editar reservado para integração futura. */
+  .top-row > div:last-child{gap:.55rem!important}
+  .edit-project-btn,
+  .delete-btn{min-height:36px;padding:.48rem .78rem;border-radius:8px;font-size:.8rem;font-weight:600}
+  .edit-project-btn{color:#6e6e73;background:#f2f2f7;border:1px solid #d2d2d7;cursor:not-allowed}
+  .delete-btn{color:#fff;background:#ff3b30;border:1px solid #e92e24;box-shadow:0 2px 5px rgba(255,59,48,.18)}
+  .delete-btn:hover{opacity:1;background:#d92d24}
 </style>
 </head>
 <body>
@@ -799,7 +806,8 @@ function renderMain() {
       </div>
       <div style="display:flex; align-items:center; gap:0.9rem; margin-left:1rem;">
         <span class="save-indicator" id="save-indicator"></span>
-        <button class="delete-btn" id="delete-btn">Excluir</button>
+        <button class="edit-project-btn" id="edit-project-btn" type="button" disabled title="Em breve">Editar projeto</button>
+        <button class="delete-btn" id="delete-btn" type="button">Excluir</button>
       </div>
     </div>
 
